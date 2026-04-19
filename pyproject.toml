@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "k70corergb"
@@ -19,8 +19,8 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/noahrpnger/K70CORERGB"
-Issues = "https://github.com/noahrpnger/K70CORERGB/issues"
+Homepage = "https://github.com/yourusername/k70corergb"
+Issues = "https://github.com/yourusername/k70corergb/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
