@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "k70corergb"
+version = "0.1.0"
+description = "Control Corsair K70 CORE TKL RGB lighting without iCUE"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+dependencies = [
+    "hid>=1.0.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/noahrpnger/K70CORERGB"
+Issues = "https://github.com/noahrpnger/K70CORERGB/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["k70corergb*"]
