@@ -4,7 +4,7 @@ from k70corergb.protocol import PACKET_SIZE
 
 CORSAIR_VID = 0x1B1C
 K70_CORE_TKL_PID = 0x2B01
-_USAGE_PAGE = 0x0006
+_USAGE_PAGE = 0xFF42
 _INTERFACE  = 1
 
 
@@ -23,7 +23,7 @@ def _find_device_path() -> bytes:
             "K70 CORE TKL RGB not found. Make sure it is connected."
         )
     for info in devices:
-        if info.get("usage_page") == _USAGE_PAGE:
+        if info.get("usage_page") == _USAGE_PAGE and info.get("usage") == 1:
             return info["path"]
     for info in devices:
         if info.get("interface_number") == _INTERFACE:

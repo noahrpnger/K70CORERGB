@@ -4,9 +4,10 @@ import threading
 
 from k70corergb.colors import Color, Colors
 from k70corergb.device import Device
-from k70corergb.keys import Key, SLOT_COUNT, all_keys
+from k70corergb.keys import Key, SLOT_COUNT
 from k70corergb.protocol import (
-    INIT_PACKETS,
+    build_init_packets,
+    build_memory_mode_packet,
     DEINIT_PACKETS,
     KEEPALIVE_PACKET,
     KEEPALIVE_INTERVAL_MS,
@@ -15,16 +16,29 @@ from k70corergb.protocol import (
 
 
 class Keyboard:
-    def __init__(self, device: Device | None = None) -> None:
+    def __init__(self, device: Device | None = None, memory_mode: bool = False) -> None:
         self._device = device or Device()
+        self._memory_mode = memory_mode
         self._state: dict[int, Color] = {slot: Colors.OFF for slot in range(SLOT_COUNT)}
         self._keepalive_timer: threading.Timer | None = None
 
+    @property
+    def memory_mode(self) -> bool:
+        return self._memory_mode
+
+    @memory_mode.setter
+    def memory_mode(self, enabled: bool) -> None:
+        if enabled == self._memory_mode:
+            return
+        self._memory_mode = enabled
+        # Only write the single reg 0x4A packet — no need to re-run the full
+        # init sequence, which would blank the display as a side effect.
+        self._device.write(build_memory_mode_packet(enabled))
+        self._flush()
+
     def open(self) -> None:
         self._device.open()
-        # Take software control: disables the firmware effect engine so it
-        # stops overwriting our color frames with the default static-white pattern.
-        self._device.write_all(INIT_PACKETS)
+        self._device.write_all(build_init_packets(self._memory_mode))
         self._schedule_keepalive()
 
     def close(self) -> None:
@@ -69,8 +83,7 @@ class Keyboard:
         self.set_all(Colors.OFF)
 
     def _flush(self) -> None:
-        packets = build_color_packets(self._state)
-        self._device.write_all(packets)
+        self._device.write_all(build_color_packets(self._state))
 
     def _send_keepalive(self) -> None:
         try:
@@ -92,4 +105,4 @@ class Keyboard:
             self._keepalive_timer = None
 
     def __repr__(self) -> str:
-        return f"Keyboard(device={self._device!r})"
+        return f"Keyboard(device={self._device!r}, memory_mode={self._memory_mode})"
